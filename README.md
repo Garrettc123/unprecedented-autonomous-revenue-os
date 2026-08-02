@@ -2,7 +2,28 @@
 
 **Garcar Enterprise | Legitimate Business Infrastructure That Prints Money**
 
+> **Unified under the APEX + NEXUS flagship stack**  
+> This repository is the **compliance-first revenue stream layer** for Garcar’s zero-human commerce system.
+
 A production-grade, zero-human multi-agent system that builds real business infrastructure and generates sustainable revenue through value delivery — not hype, not scams, not gray-area tactics.
+
+---
+
+## 🔗 Unified Architecture (2026)
+
+| Layer | Repository | Role |
+|-------|------------|------|
+| **Vision / Identity** | [NEXUS-AI-CORE](https://github.com/Garrettc123/NEXUS-AI-CORE) | Product branding & future protocol surface |
+| **Execution Engine** | [APEX-AI-ENGINE](https://github.com/Garrettc123/APEX-AI-ENGINE) | Flagship multi-agent runtime (Scout → Analyst → Executor → Monetizer) |
+| **Revenue OS (this repo)** | **unprecedented-autonomous-revenue-os** | Compliance-first stream orchestrator for local services, audits, data products & enterprise sprints |
+| **Master Hub** | [systems-master-hub](https://github.com/Garrettc123/systems-master-hub) | Fleet orchestration, secrets, status, evolution |
+| **Enterprise Backend** | [garcar-enterprise-production](https://github.com/Garrettc123/garcar-enterprise-production) | API gateway, billing, health monitors |
+| **Payment Loop** | [garcar-payment-loop](https://github.com/Garrettc123/garcar-payment-loop) | Stripe webhook → ledger automation |
+
+All production agent execution, Stripe integration, and live dashboards run through **APEX-AI-ENGINE**.  
+This repo provides the **stream-specific orchestrator** and hard compliance gates for legitimate SMB revenue.
+
+---
 
 ## Core Principles (Non-Negotiable)
 - **Legitimate only**: Real services that solve real problems for paying customers
@@ -30,6 +51,7 @@ A production-grade, zero-human multi-agent system that builds real business infr
          │                    │                    │
          ▼                    ▼                    ▼
      Stripe API          Linear / Notion       Audit Log
+                    (via APEX-AI-ENGINE)
 ```
 
 ## Revenue Targets (Realistic & Legitimate)
@@ -61,4 +83,4 @@ python -m agents.orchestrator --mode activate --stream local_services
 - Immutable audit trail for every agent action
 
 Built by Garrett Carrol — Garcar Enterprise  
-Live infrastructure: 225+ repos | Notion command layer | Stripe live
+Live infrastructure: 229+ repos | Notion command layer | Stripe live | Unified under APEX + NEXUS
