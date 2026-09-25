@@ -2,7 +2,7 @@
 
 Role: `revenue_os`
 
-_Live fan-out: 2026-09-25 (event bus + consumers + outreach wave)_
+_Live fan-out: 2026-09-25 — PR #3 MERGED (full-scale activation)_
 
 ## Required Garcar Base Contract
 - [x] `/health` — **added** via `contract/` sidecar
@@ -18,6 +18,7 @@ Sidecar: `contract/app.py` + `contract/event_bus.py` + `contract/consumers.py` +
 - [x] Graceful offline mode when `REDIS_URL` unset.
 - [x] Consume skeleton (`contract/consumers.py`) for arbitrage / control commands.
 - [x] Contract + event tests (`tests/test_contract.py`).
+- [x] **Merged to main** — SHA `05cfafabc0977afe117b637d9e14b468535f014e`
 
 ## Current Full-Stack Components
 - backend_api: FastAPI contract sidecar (`contract/app.py`)
@@ -29,12 +30,18 @@ Sidecar: `contract/app.py` + `contract/event_bus.py` + `contract/consumers.py` +
 ## Wiring Tasks
 1. ~~Add or verify Garcar Base Contract endpoints.~~ **DONE**
 2. ~~Add NATS/Redis Streams client and emit/consume required topics.~~ **DONE (Redis + consumers)**
-3. Ensure metrics/events appear in Zeus/Atlas dashboards. — **ready** (publish path live; Atlas consumer is next hop)
+3. Ensure metrics/events appear in Zeus/Atlas dashboards. — **ready** (publish path live; set REDIS_URL + Atlas consumer next)
 4. ~~Add tests for contract + event wiring.~~ **DONE**
 
 ## Activation tracker
 Linear: [GAR-526](https://linear.app/garrettc/issue/GAR-526/activation-unprecedented-enterprise-intelligence-full-stack)
-PR: https://github.com/Garrettc123/unprecedented-autonomous-revenue-os/pull/3 (ready for review)
+
+## Production next step
+```bash
+export REDIS_URL=redis://<your-redis>:6379/0
+uvicorn contract.app:app --host 0.0.0.0 --port 8080
+# or deploy contract/ Dockerfile with REDIS_URL in env
+```
 
 ## Safety
 - Cash lock revoked per Garcar operating stance — architecture and revenue run in parallel.
