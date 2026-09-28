@@ -2,46 +2,35 @@
 
 Role: `revenue_os`
 
-_Live fan-out: 2026-09-25 — PR #3 MERGED (full-scale activation)_
+_Live fan-out: 2026-09-27 — payment_hook attached to public A wedge MLS-497_
 
 ## Required Garcar Base Contract
-- [x] `/health` — **added** via `contract/` sidecar
-- [x] `/meta` — **added** (role revenue_os, contract_version 1.1.0)
-- [x] `/metrics` — **added** (JSON counters + connection flags)
-- [x] `/events` — **added** (in-memory ring + emit endpoint)
-
-Sidecar: `contract/app.py` + `contract/event_bus.py` + `contract/consumers.py` + `contract/requirements.txt` + `contract/Dockerfile` (EXPOSE 8080).
+- [x] `/health`
+- [x] `/meta`
+- [x] `/metrics`
+- [x] `/events`
 
 ## Event Bus Wiring
-- [x] Emit required events for this role (`garcar.unprecedented-autonomous-revenue-os.{event_type}`).
-- [x] Redis client (compatible with garcar-enterprise-sync-core `garcar:events` channel).
-- [x] Graceful offline mode when `REDIS_URL` unset.
-- [x] Consume skeleton (`contract/consumers.py`) for arbitrage / control commands.
-- [x] Contract + event tests (`tests/test_contract.py`).
-- [x] **Merged to main** — SHA `05cfafabc0977afe117b637d9e14b468535f014e`
+- [x] Emit / consume skeleton
+- [x] Offline mode when REDIS_URL unset
 
 ## Current Full-Stack Components
 - backend_api: FastAPI contract sidecar (`contract/app.py`)
-- frontend_ui: None
-- payment_hook: None
-- event_bus_connected: **True when REDIS_URL set** (runtime flag)
-- observability_connected: **True when REDIS_URL set** (same bus)
+- frontend_ui: storefront https://garrettc123.github.io/
+- payment_hook: **LIVE** (`payment_hook/`) — CMC-gated attach to Stripe payment links
+- event_bus_connected: True when REDIS_URL set
+- observability_connected: True when REDIS_URL set
 
-## Wiring Tasks
-1. ~~Add or verify Garcar Base Contract endpoints.~~ **DONE**
-2. ~~Add NATS/Redis Streams client and emit/consume required topics.~~ **DONE (Redis + consumers)**
-3. Ensure metrics/events appear in Zeus/Atlas dashboards. — **ready** (publish path live; set REDIS_URL + Atlas consumer next)
-4. ~~Add tests for contract + event wiring.~~ **DONE**
+## Public A SKU this hour
+- MLS-497 Mark the leads that sat — $497 — https://buy.stripe.com/8x2eVddjf0hQ86Tf0f43S2h
+- Upsell LB-2500 callback clock — $2,500 — https://buy.stripe.com/14AdR95QN3u2af14lB43S2j
 
-## Activation tracker
-Linear: [GAR-526](https://linear.app/garrettc/issue/GAR-526/activation-unprecedented-enterprise-intelligence-full-stack)
+Retired as public default: $47 HVAC Contractor Lead Leak Audit.
 
 ## Production next step
 ```bash
-export REDIS_URL=redis://<your-redis>:6379/0
-uvicorn contract.app:app --host 0.0.0.0 --port 8080
-# or deploy contract/ Dockerfile with REDIS_URL in env
+python -m unittest discover -s tests -v
+python -m agents.orchestrator --mode activate --stream local_services
+# After a real Stripe checkout.session.completed webhook:
+# Orchestrator.apply_payment({sku, amount_total, customer_email, checkout_session_id})
 ```
-
-## Safety
-- Cash lock revoked per Garcar operating stance — architecture and revenue run in parallel.

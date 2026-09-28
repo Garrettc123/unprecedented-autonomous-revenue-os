@@ -1,0 +1,20 @@
+{
+  "operator": "Garcar Enterprise",
+  "vertical": "DFW / Johnson County real-estate teams",
+  "offer": "Mark the leads that sat",
+  "sku": "MLS-497",
+  "price_cents": 49700,
+  "currency": "usd",
+  "channel": "storefront",
+  "buyer_profile": "DFW / Johnson County real-estate teams with an existing lead list and CRM",
+  "promise": "Review one recent CRM export (one source, up to 500 names, last 30 days) and mark the leads that sat. Credits toward the $2,500 callback-clock install.",
+  "fulfillment": "email gwc2780@gmail.com after payment with CRM export; marked spreadsheet + one-page count + written rules",
+  "storefront": "https://garrettc123.github.io/",
+  "checkout": "https://buy.stripe.com/8x2eVddjf0hQ86Tf0f43S2h",
+  "product_id": "prod_VF79GXA9nf3MQe",
+  "price_id": "price_1UEcuyFKGbk21LK5mqhbKQWZ",
+  "payment_link_id": "plink_1UEcv4FKGbk21LK57hRic0dR",
+  "upsell_sku": "LB-2500",
+  "upsell_checkout": "https://buy.stripe.com/14AdR95QN3u2af14lB43S2j",
+  "source": "stripe-live-catalog-2026-09-27"
+}
