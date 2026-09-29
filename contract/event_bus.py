@@ -4,6 +4,12 @@ Emits and consumes on topics matching:
   garcar.unprecedented-autonomous-revenue-os.{event_type}
 
 Compatible with garcar-enterprise-sync-core Redis bus.
+
+Envelope versions
+-----------------
+v1   Frozen (PR #3). Do not mutate the v1 field set.
+v1.1 Adds tenant_id, causation_id, policy_decision_id, evidence_refs.
+     correlation_id already existed on v1 and is retained.
 """
 from __future__ import annotations
 
@@ -20,6 +26,8 @@ SYSTEM = "unprecedented-autonomous-revenue-os"
 TOPIC_PREFIX = f"garcar.{SYSTEM}"
 CHANNEL = "garcar:events"
 LOG_KEY = "garcar:event_log"
+SCHEMA_VERSION = "v1.1"
+DEFAULT_TENANT_ID = os.getenv("GARCAR_TENANT_ID", "garcar-enterprise")
 
 
 def _now() -> str:
@@ -72,13 +80,18 @@ class EventBus:
         payload: dict[str, Any],
         *,
         correlation_id: str | None = None,
+        causation_id: str | None = None,
+        tenant_id: str | None = None,
+        policy_decision_id: str | None = None,
+        evidence_refs: list[str] | None = None,
         classification: str = "internal",
     ) -> dict[str, Any]:
         eid = str(uuid.uuid4())
         return {
+            # v1 frozen fields
             "event_id": eid,
             "event_type": f"{SYSTEM}.{event_type}.v1",
-            "schema_version": "v1",
+            "schema_version": SCHEMA_VERSION,
             "producer": SYSTEM,
             "correlation_id": correlation_id or eid,
             "idempotency_key": f"{SYSTEM}:{event_type}:{eid}",
@@ -88,6 +101,11 @@ class EventBus:
             "topic": self._topic(event_type),
             "source": SYSTEM,
             "timestamp": _now(),
+            # v1.1 additions (GAR-529)
+            "tenant_id": tenant_id or DEFAULT_TENANT_ID,
+            "causation_id": causation_id,
+            "policy_decision_id": policy_decision_id,
+            "evidence_refs": list(evidence_refs or []),
         }
 
     async def publish(
@@ -96,6 +114,10 @@ class EventBus:
         payload: dict[str, Any] | None = None,
         *,
         correlation_id: str | None = None,
+        causation_id: str | None = None,
+        tenant_id: str | None = None,
+        policy_decision_id: str | None = None,
+        evidence_refs: list[str] | None = None,
         classification: str = "internal",
     ) -> dict[str, Any] | None:
         """Publish an event. Returns envelope or None if offline."""
@@ -105,6 +127,10 @@ class EventBus:
             event_type,
             payload or {},
             correlation_id=correlation_id,
+            causation_id=causation_id,
+            tenant_id=tenant_id,
+            policy_decision_id=policy_decision_id,
+            evidence_refs=evidence_refs,
             classification=classification,
         )
         try:
