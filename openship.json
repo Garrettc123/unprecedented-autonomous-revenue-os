@@ -1,0 +1,11 @@
+{
+  "$schema": "https://openship.io/openship.schema.json",
+  "name": "revenue-os",
+  "framework": "fastapi",
+  "runtime": "docker",
+  "port": 8080,
+  "healthcheck": {
+    "path": "/health",
+    "port": 8080
+  }
+}

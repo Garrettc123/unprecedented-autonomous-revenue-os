@@ -1,0 +1,33 @@
+{
+  "$comment": "Operator map only. Secrets are set with openship project env set --secret.",
+  "control_plane": "https://openship.io",
+  "not": ["https://openship.org", "OpenRig"],
+  "projects": [
+    {
+      "name": "revenue-os",
+      "git": "Garrettc123/unprecedented-autonomous-revenue-os",
+      "port": 8080,
+      "health": "/health",
+      "env_keys": ["REDIS_URL", "GARCAR_TENANT_ID"]
+    },
+    {
+      "name": "ai-orchestrator",
+      "git": "Garrettc123/ai-orchestrator",
+      "health": "/health",
+      "env_keys": ["MARS_REASON_URL", "MARS_API_KEY", "STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET"]
+    },
+    {
+      "name": "mars-production",
+      "role": "reason_upstream",
+      "env_keys": ["MARS_API_KEY"]
+    },
+    {
+      "name": "mars-api",
+      "env_keys": ["MARS_REASON_URL", "MARS_API_KEY"]
+    },
+    {
+      "name": "garcar-base",
+      "env_keys": ["MARS_REASON_URL", "MARS_API_KEY"]
+    }
+  ]
+}
