@@ -3,5 +3,9 @@ WORKDIR /app
 COPY contract/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY contract/ ./contract/
+ENV PORT=8080
 EXPOSE 8080
-CMD ["uvicorn", "contract.app:app", "--host", "0.0.0.0", "--port", "8080"]
+# Railway injects PORT. contract.serve binds a dual-stack socket on "::"
+# (IPv4 + IPv6) so the service works over Railway private networking too.
+# HOST=0.0.0.0 forces IPv4-only.
+CMD ["python", "-m", "contract.serve"]
