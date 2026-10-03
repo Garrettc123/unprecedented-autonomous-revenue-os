@@ -37,6 +37,14 @@ def _fast(bus: EventBus) -> EventBus:
     return bus
 
 
+def _fast_patched(bus: EventBus, monkeypatch) -> EventBus:
+    """Like _fast, but pytest restores the shared bus's timing after the test."""
+    monkeypatch.setattr(bus, "backoff_base", 0.001)
+    monkeypatch.setattr(bus, "backoff_max", 0.01)
+    monkeypatch.setattr(bus, "health_interval", 0.05)
+    return bus
+
+
 @pytest.fixture
 def app_bus(monkeypatch):
     """Point the app's module-level bus at a fake Redis for one test."""
@@ -44,7 +52,7 @@ def app_bus(monkeypatch):
     server = fakeredis.FakeServer()
     monkeypatch.setattr(bus, "redis_url", "redis://fake:6379/0")
     monkeypatch.setattr(bus, "client_factory", _fake_factory(server))
-    _fast(bus)
+    _fast_patched(bus, monkeypatch)
     yield bus, server
     bus.redis_url = None
     bus.client = None
@@ -162,7 +170,7 @@ async def test_server_starts_when_redis_unreachable(monkeypatch):
 
     monkeypatch.setattr(bus, "redis_url", "redis://unreachable:6379/0")
     monkeypatch.setattr(bus, "client_factory", factory)
-    _fast(bus)
+    _fast_patched(bus, monkeypatch)
     try:
         async with asyncio.timeout(2):
             async with app_module.lifespan(app_module.app):

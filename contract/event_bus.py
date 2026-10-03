@@ -14,6 +14,7 @@ v1.1 Adds tenant_id, causation_id, policy_decision_id, evidence_refs.
 from __future__ import annotations
 
 import asyncio
+import inspect
 import json
 import logging
 import os
@@ -87,6 +88,23 @@ def _default_client_factory(url: str):
         socket_timeout=10,
         health_check_interval=int(HEALTH_INTERVAL),
     )
+
+
+async def _close_quietly(obj: Any) -> None:
+    """Close a redis-py client or PubSub on any supported version.
+
+    Older redis-py 5.0.x releases only have ``close()``; newer ones add
+    ``aclose()`` and deprecate ``close()``. Prefer ``aclose`` when present.
+    """
+    closer = getattr(obj, "aclose", None) or getattr(obj, "close", None)
+    if closer is None:
+        return
+    try:
+        result = closer()
+        if inspect.isawaitable(result):
+            await result
+    except Exception as exc:  # cleanup must never take the bus down
+        logger.debug("Ignoring error while closing %s: %s", type(obj).__name__, _safe_error(exc))
 
 
 class EventBus:
@@ -165,10 +183,7 @@ class EventBus:
     async def _drop_client(self) -> None:
         client, self.client = self.client, None
         if client is not None:
-            try:
-                await client.aclose()
-            except Exception:
-                pass
+            await _close_quietly(client)
 
     async def connect(self) -> bool:
         """Single connection attempt. Returns True when Redis answered PING."""
@@ -351,7 +366,10 @@ class EventBus:
         stop: asyncio.Event | None = None,
     ) -> bool:
         """Run one subscription session. Returns True if it ended because of an error."""
-        pubsub = self.client.pubsub()
+        client = self.client
+        if client is None:
+            return True
+        pubsub = client.pubsub()
         try:
             if system_only:
                 await pubsub.psubscribe(f"{TOPIC_PREFIX}.*")
@@ -359,7 +377,14 @@ class EventBus:
                 await pubsub.subscribe(CHANNEL)
             self.subscribed = True
             logger.info("Subscribed to %s", f"{TOPIC_PREFIX}.*" if system_only else CHANNEL)
-            while stop is None or not stop.is_set():
+            # End the session if the bus drops or the supervisor swaps in a new
+            # client, so subscribe() resubscribes on the live connection instead of
+            # polling a PubSub that belongs to the old one.
+            while (
+                (stop is None or not stop.is_set())
+                and self._connected
+                and self.client is client
+            ):
                 message = await pubsub.get_message(ignore_subscribe_messages=True, timeout=1.0)
                 if message is None:
                     continue
@@ -373,7 +398,8 @@ class EventBus:
                     await callback(event)
                 except Exception as exc:
                     logger.error("Subscribe callback error: %s", exc)
-            return False
+            # False only for a requested stop; disconnect / client swap => resubscribe.
+            return not (stop is not None and stop.is_set())
         except asyncio.CancelledError:
             raise
         except Exception as exc:
@@ -385,7 +411,4 @@ class EventBus:
             return True
         finally:
             self.subscribed = False
-            try:
-                await pubsub.aclose()
-            except Exception:
-                pass
+            await _close_quietly(pubsub)
