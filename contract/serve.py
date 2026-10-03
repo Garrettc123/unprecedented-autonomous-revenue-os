@@ -38,7 +38,7 @@ def main() -> None:
     host = os.getenv("HOST", "::")
     port = int(os.getenv("PORT", "8080"))
     sock = make_socket(host, port)
-    config = uvicorn.Config("contract.app:app", log_level=os.getenv("LOG_LEVEL", "info"))
+    config = uvicorn.Config("contract.app:app", log_level=os.getenv("LOG_LEVEL", "info").strip().lower())
     uvicorn.Server(config).run(sockets=[sock])
 
 
